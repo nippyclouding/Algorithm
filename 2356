@@ -72,7 +72,7 @@ public class Solution {
     }
 }
 
-- 더 효율적인 파싱
+- 더 효율적인 구분
 
 String[] inputString = br.readLine().split(" ");
 int x = Integer.parseInt(inputString[0]);
