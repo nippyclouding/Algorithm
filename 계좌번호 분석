@@ -1,0 +1,117 @@
+https://codro.notion.site/2-9cc060f8b2f3460ab1d715dcb9b889ac
+
+
+혼자서는 절대 IDE 없이 풀지 못하는 수준의 문제이다.
+나중에 계속 반복해서 풀어보기 
+
+import java.util.*;
+
+public class Solution {
+    public static void main(String[] args) {
+        String[] tc1 = {"4514--234495-1","305-44-291501","1-2-34-495-8623","492134545151","623-421523-67341","-5439-59639921","6235-7X3+47-7456","98-76-543-210","512-73-634901","000-999999-22555","064-82-792561"};
+        String[] tc2 = {"1-2-3-456789012","582845-385823","48572-39485-89012","4-5-2-593328484","4958-392945123-","49582039415423","7-3-7-000000000","485723-693812","39482746582734","1-1-1-111111111","A4944-5095-4951","4851293412223"};
+        String[] tc3 = {"592356=5345","49-694-4495-64","5923565345%"};
+
+        int[] result1 = {3,2,1};
+        int[] result2 = {4, 2, 2, 1};
+        int[] result3 = {1};
+
+        if(Arrays.equals(result1, func(tc1))) System.out.println("first pass");
+        if(Arrays.equals(result2, func(tc2))) System.out.println("second pass");
+        if(Arrays.equals(result3, func(tc3))) System.out.println("third pass");
+    }
+
+    static int[] func(String[] sArr){
+
+
+        //1. s 속 계좌 중 정상 계좌만 추려낸다.
+        List<String> accounts = new ArrayList<>();
+        for(String s : sArr)
+            if(validate(s)) accounts.add(s);
+
+        //2. 정상 계좌 중 같은 은행의 계좌들을 찾아낸다.
+        Map<String, Integer> map = new HashMap<>();
+
+        for(String ac : accounts){
+            String convert = convert(ac);
+            if(map.containsKey(convert)) map.put(convert, map.get(convert)+1);
+            else map.put(convert, 1);
+        }
+
+        //3. 같은 은행의 계좌들의 수를 세아려 내림차순으로 정렬한다.
+        Integer[] answer = new Integer[map.size()];
+        List<Integer> list = new ArrayList<>(map.values());
+        int idx = 0;
+        for(int i : list)
+            answer[idx++] = i;
+
+        //내림차순
+        Arrays.sort(answer, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return o2 - o1; // 내림차순
+            }
+        });
+
+        // 언박싱
+        int[] intArr = Arrays.stream(answer)  // Stream<Integer>
+                .mapToInt(Integer::intValue)  // int로 변환
+                .toArray();
+
+        return intArr;
+    }
+
+    private static String convert(String ac) {
+        String s = "";
+        char[] result = new char[5];
+
+        char[] cArr = ac.toCharArray();
+
+        int numCnt = -10;
+        int hyponCnt = 0;
+        int hyponStartIdx = 2;
+        for(int i=0; i<cArr.length; i++){
+            if(Character.isDigit(cArr[i])) numCnt++;
+            if(cArr[i]=='-') {
+                hyponCnt++;
+                result[hyponStartIdx++] = String.valueOf(i).toCharArray()[0];
+            }
+        }
+
+        result[0] = String.valueOf(numCnt).toCharArray()[0];
+        result[1] = String.valueOf(hyponCnt).toCharArray()[0];
+
+        StringBuilder sb = new StringBuilder();
+        for(char c : result) sb.append(c);
+        s = sb.toString();
+        return s;
+    }
+
+
+    private static boolean validate(String s){
+        char[] c = s.toCharArray();
+        //규칙1
+        for(int i=0; i<c.length; i++){
+            if(!Character.isDigit(c[i]) && c[i]!='-') return false;
+        }
+        //규칙2, 3
+        int cntAlphabet = 0;
+        int cntHypon = 0;
+        for(int i=0; i<c.length; i++){
+            if(c[i]!='-') cntAlphabet++;
+            else cntHypon++;
+        }
+        if(cntAlphabet>14 || cntAlphabet<11) return false;
+        if(cntHypon > 3) return false;
+
+        //규칙4
+        for(int i=0; i<c.length-1; i++){
+            if(i<c.length-1 && c[i]=='-' && c[i+1]=='-') return false;
+        }
+        if(c[0]=='-') return false;
+        if(c.length>0 && c[c.length-1] =='-') return false;
+
+        return true;
+    }
+
+}
